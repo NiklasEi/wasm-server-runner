@@ -10,43 +10,14 @@
 </head>
 
 <body>
+    <script type="module" src="./api/server.js"></script>
     <script type="module">
-        import init from "./api/wasm.js";
-
-        async function run() {
-            await init("/api/wasm.wasm");
-        }
-
-        const reloadInterval = 1000;
-        const maxFailCount = 5;
-
-        async function startReloadInterval() {
-            const fetchVersion = () => fetch("/api/version").then(response => response.text());
-            const version = await fetchVersion();
-            let failedCount = 0;
-            let intervalToken;
-
-            function reloadIfChanged() {
-                fetchVersion()
-                    .then(newVersion => {
-                        if (version != newVersion) {
-                            window.location.reload();
-                        }
-                    })
-                    .catch(e => {
-                        failedCount += 1;
-                        if (failedCount >= maxFailCount) {
-                            clearInterval(intervalToken);
-                            console.warn("Server disconnected");
-                        }
-                    });
-            }
-
-            intervalToken = setInterval(reloadIfChanged, reloadInterval)
-        }
-
-        run();
-        startReloadInterval();
+        import {initializeWasmServer} from './api/server.js';
+        initializeWasmServer();
+    </script>
+    <script type="module">
+        import init from './api/wasm.js'
+        init("./api/wasm.wasm");
     </script>
 </body>
 

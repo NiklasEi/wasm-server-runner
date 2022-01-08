@@ -26,11 +26,13 @@ pub async fn run_server(options: Options, output: WasmBindgenOutput) -> Result<(
     let version = generate_version();
 
     let html = include_str!("../static/index.html").replace("{{ TITLE }}", &options.title);
+    let server_js = include_str!("../static/server.js").to_string();
 
     let serve_dir = get_service(ServeDir::new(".")).handle_error(internal_server_error);
 
     let app = Router::new()
         .route("/", get(move || async { Html(html) }))
+        .route("/api/server.js", get(|| async { WithContentType("application/javascript", server_js) }))
         .route("/api/wasm.js", get(|| async { WithContentType("application/javascript", js) }))
         .route("/api/wasm.wasm", get(|| async { WithContentType("application/wasm", wasm) }))
         .route("/api/version", get(move || async { version }))
